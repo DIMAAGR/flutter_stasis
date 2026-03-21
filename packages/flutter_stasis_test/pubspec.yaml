@@ -16,7 +16,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_stasis:
+  flutter_stasis: ^1.0.0
 
 dev_dependencies:
   flutter_lints: ^6.0.0

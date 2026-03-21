@@ -38,11 +38,13 @@ class TaskViewModel extends StasisViewModel<TaskFailure, List<Task>, TaskState> 
         command: TaskCommand(() => _addTask(title)),
         onSuccess: (task) {
           final updated = [...state.allTasks, task];
-          setSuccess(updated);
+          setSuccess(updated, withUpdate: (s) => s.copyWith(isAdding: false));
           emit(const ShowSnackBarEvent('Task added'));
         },
-        onError: (f) => emit(ShowSnackBarEvent(f.message)),
-        withUpdate: (s) => s.copyWith(isAdding: true),
+        onError: (f) {
+          setError(f, withUpdate: (s) => s.copyWith(isAdding: false));
+          emit(ShowSnackBarEvent(f.message));
+        },
         onLoading: () => update((s) => s.copyWith(isAdding: true)),
       );
 
@@ -95,10 +97,4 @@ class TaskViewModel extends StasisViewModel<TaskFailure, List<Task>, TaskState> 
       update((s) => s.copyWith(filter: filter));
 
   void onAddPressed() => emit(const ShowAddTaskDialogEvent());
-}
-
-// Helper extension to pass withUpdate into execute cleanly
-extension on StasisViewModel {
-  // ignore: unused_element
-  void _noop() {}
 }

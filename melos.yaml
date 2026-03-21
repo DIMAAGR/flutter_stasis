@@ -24,6 +24,9 @@ scripts:
   publish:dry:
     run: melos exec -- dart pub publish --dry-run
     description: Dry-run publish for all packages.
+    packageFilters:
+      ignore:
+        - flutter_stasis_example
 
   publish:all:
     run: melos exec -- dart pub publish --force

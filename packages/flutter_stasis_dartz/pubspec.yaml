@@ -17,8 +17,8 @@ dependencies:
   flutter:
     sdk: flutter
   dartz: ^0.10.1
-  flutter_stasis:
-  flutter_stasis_core:
-
+  flutter_stasis: ^1.0.0
+  flutter_stasis_core: ^1.0.0
+  
 dev_dependencies:
   flutter_lints: ^6.0.0

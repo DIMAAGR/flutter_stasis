@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flutter_stasis_example/features/tasks/domain/use_cases/task_use_cases.dart';
 import 'package:flutter_stasis_example/features/tasks/presentation/events/task_events.dart';
+import 'package:flutter_stasis_example/features/tasks/presentation/view_model/task_state.dart';
 import 'package:flutter_stasis_example/features/tasks/presentation/view_model/task_view_model.dart';
 
 TaskViewModel _makeVm() {
@@ -21,7 +22,7 @@ void main() {
     test('load emits loading then empty success', () async {
       final vm = _makeVm();
 
-      await assertStateSequence(
+      await assertStateSequence<TaskState>(
         listenable: vm.stateListenable,
         act: vm.load,
         expected: [
@@ -84,8 +85,9 @@ void main() {
         stream: vm.events,
         act: () => vm.addTask('   '),
         expected: [
-          (e) => e is ShowSnackBarEvent &&
-              (e as ShowSnackBarEvent).message == 'Title cannot be empty.',
+          (e) =>
+              e is ShowSnackBarEvent &&
+              e.message == 'Title cannot be empty.',
         ],
       );
 
