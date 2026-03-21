@@ -1,0 +1,33 @@
+name: flutter_stasis
+
+packages:
+  - packages/*
+  - example
+
+command:
+  bootstrap:
+    usePubspecOverrides: true
+
+scripts:
+  analyze:
+    run: melos exec -- dart analyze --fatal-infos
+    description: Analyze all packages.
+
+  format:
+    run: melos exec -- dart format . --set-exit-if-changed
+    description: Check formatting across all packages.
+
+  test:
+    run: melos exec --dir-exists=test -- flutter test
+    description: Run tests in all packages that have a test directory.
+
+  publish:dry:
+    run: melos exec -- dart pub publish --dry-run
+    description: Dry-run publish for all packages.
+
+  publish:all:
+    run: melos exec -- dart pub publish --force
+    description: Publish all packages to pub.dev.
+    packageFilters:
+      ignore:
+        - flutter_stasis_example

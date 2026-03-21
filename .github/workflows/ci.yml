@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  analyze:
+    name: Analyze & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.0"
+          channel: stable
+      - name: Install Melos
+        run: dart pub global activate melos
+      - name: Bootstrap workspace
+        run: melos bootstrap
+      - name: Analyze
+        run: melos analyze
+      - name: Check formatting
+        run: melos format
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.0"
+          channel: stable
+      - name: Install Melos
+        run: dart pub global activate melos
+      - name: Bootstrap workspace
+        run: melos bootstrap
+      - name: Run tests
+        run: melos test
