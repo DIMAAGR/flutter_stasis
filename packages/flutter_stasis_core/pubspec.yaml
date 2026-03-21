@@ -1,0 +1,20 @@
+name: flutter_stasis_core
+description: "Pure Dart core of the Stasis ecosystem. StateObject, ViewModelState, Command, CommandPolicy and CommandResult — no Flutter, no third-party dependencies."
+version: 1.0.0
+homepage: https://github.com/DIMAAGR/flutter_stasis
+repository: https://github.com/DIMAAGR/flutter_stasis/tree/main/packages/flutter_stasis_core
+
+topics:
+  - state-management
+  - mvvm
+  - flutter
+  - architecture
+
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  equatable: ^2.0.8
+
+dev_dependencies:
+  lints: ^6.0.0
