@@ -14,7 +14,7 @@ Flutter layer of the Stasis ecosystem. Provides `StasisViewModel`, reactive widg
 
 ```yaml
 dependencies:
-  flutter_stasis: ^1.0.0
+  flutter_stasis: ^0.2.0
 ```
 
 ---
@@ -418,6 +418,130 @@ Future<void> load() => execute(
   onSuccess: setSuccess,
 );
 ```
+
+## 0.2.0 update
+
+Based on community feedback, `flutter_stasis` now includes a dedicated runtime notifier:
+
+- `StasisNotifier<T>` (internal runtime for state updates)
+- `invalidate()` on `StasisViewModel` (notify without replacing state instance)
+- `batch()` on `StasisViewModel` (coalesce multiple updates into a single notification)
+
+Why this matters:
+
+- keeps immutable update flow (`update`, `copyWith`, lifecycle helpers)
+- unlocks advanced controlled scenarios where internal mutable data changes but state object replacement is unnecessary
+- reduces noisy rebuild bursts when multiple updates happen together
+
+---
+
+## FAQ from Reddit feedback
+
+### "Can I do this with sealed classes in BLoC/Riverpod too?"
+
+Yes. Stasis does not claim this is impossible elsewhere.
+
+The goal is to make the lifecycle (`Initial/Loading/Success/Error`) structural and always present in the base contracts, so teams start from a consistent baseline without re-deciding the pattern per feature.
+
+### "Data + loading at the same time is normal (refresh/lazy load)."
+
+Correct. A common pattern is to keep existing data visible while background refresh runs.
+
+In Stasis, one explicit approach is:
+
+```dart
+Future<void> refresh() => execute(
+  command: _getItems,
+  onLoading: () => update((s) => s.copyWith(isRefreshing: true)),
+  onSuccess: (data) => setSuccess(
+    data,
+    withUpdate: (s) => s.copyWith(isRefreshing: false),
+  ),
+  onError: (f) => setError(
+    f,
+    withUpdate: (s) => s.copyWith(isRefreshing: false),
+  ),
+);
+```
+
+This keeps the lifecycle explicit and keeps previous data visible.
+
+### "Isn't this two loading states?"
+
+It is two different UX intents:
+
+- initial load (no data yet)
+- background refresh (data already visible)
+
+If your screen does not need that distinction, just use `setLoading()` and skip `isRefreshing`.
+
+### "Why events outside state?"
+
+You can store events in state, but then you need a consume/reset protocol.
+
+Keeping ephemeral effects in `UiEvent` stream avoids accidental re-fire on rebuild (navigation, snackbars, dialogs).
+
+### "Should I migrate an already stable BLoC/Riverpod codebase?"
+
+Usually no.
+
+Stasis is a better fit for greenfield projects or teams that want this specific trade-off from day one.
+
+### "Codegen-free forever?"
+
+Core design is currently codegen-free. Optional tooling can be explored later if it improves large-scale ergonomics without making codegen mandatory.
+
+---
+
+## Additional examples (new APIs)
+
+### Coalesce multiple updates with `batch()`
+
+```dart
+void prepareSync() {
+  batch(() {
+    setLoading();
+    update((s) => s.copyWith(progress: 0, isSyncing: true));
+  });
+}
+```
+
+### Notify listeners without replacing state via `invalidate()`
+
+```dart
+class AudioVm extends StasisViewModel<AppFailure, AudioData, AudioState> {
+  AudioVm() : super(const AudioState(state: InitialState()));
+
+  final List<double> waveformCache = <double>[];
+
+  void patchWaveform(List<double> chunk) {
+    waveformCache.addAll(chunk);
+    invalidate();
+  }
+}
+```
+
+### Explicit command keying for concurrency
+
+```dart
+Future<void> toggleItem(String id) => execute(
+  command: TaskCommand(() => _toggleUseCase(id)),
+  onSuccess: (_) => load(),
+  policy: CommandPolicy.restartable,
+  policyKey: 'toggle_$id',
+);
+```
+
+---
+
+## Roadmap focus (short term)
+
+Near-term priorities, based on real feedback:
+
+1. keep lifecycle semantics explicit and predictable
+2. refine async UX patterns in docs (initial load vs refresh)
+3. evolve controlled mutable-resource story on top of `invalidate()`
+4. continue improving examples and test ergonomics
 
 ---
 
