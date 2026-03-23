@@ -61,7 +61,7 @@ No try/catch. No manual flags. No state that can be `isLoading: true` and `data:
 
 ```yaml
 dependencies:
-  flutter_stasis: ^1.0.0
+  flutter_stasis: ^0.2.0
 ```
 
 **1. Define your state**

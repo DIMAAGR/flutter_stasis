@@ -1,3 +1,3 @@
-## 1.0.0
+## 0.2.0
 
-- Initial release.
+- Pre-1.0 release line.
