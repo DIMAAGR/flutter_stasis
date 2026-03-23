@@ -5,6 +5,7 @@ import 'package:flutter_stasis_core/flutter_stasis_core.dart';
 
 import '../events/ui_event.dart';
 import '../events/ui_event_channel.dart';
+import 'stasis_notifier.dart';
 
 /// Base view model used by `flutter_stasis`.
 ///
@@ -15,9 +16,10 @@ import '../events/ui_event_channel.dart';
 /// - command execution
 /// - one-shot UI events
 abstract class StasisViewModel<F, S, T extends StateObject<F, S, T>> {
-  StasisViewModel(T initialState) : _stateNotifier = ValueNotifier<T>(initialState);
+  StasisViewModel(T initialState)
+    : _stateNotifier = StasisNotifier<T>(initialState);
 
-  final ValueNotifier<T> _stateNotifier;
+  final StasisNotifier<T> _stateNotifier;
   final UiEventChannel _events = UiEventChannel();
   final CommandExecutionScope _commandExecutionScope = CommandExecutionScope();
 
@@ -39,14 +41,30 @@ abstract class StasisViewModel<F, S, T extends StateObject<F, S, T>> {
   @protected
   void setState(T next) {
     if (_disposed) return;
-    _stateNotifier.value = next;
+    _stateNotifier.setValue(next);
   }
 
   /// Updates state using an immutable updater callback.
   @protected
   void update(T Function(T current) updater) {
     if (_disposed) return;
-    _stateNotifier.value = updater(_stateNotifier.value);
+    _stateNotifier.update(updater);
+  }
+
+  /// Notifies listeners without replacing current state instance.
+  ///
+  /// Useful for advanced scenarios with controlled internal mutable resources.
+  @protected
+  void invalidate() {
+    if (_disposed) return;
+    _stateNotifier.invalidate();
+  }
+
+  /// Coalesces multiple updates into a single notification.
+  @protected
+  void batch(VoidCallback action) {
+    if (_disposed) return;
+    _stateNotifier.batch(action);
   }
 
   /// Emits loading lifecycle state.
