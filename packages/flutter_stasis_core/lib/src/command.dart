@@ -2,6 +2,9 @@ import 'command_result.dart';
 
 /// Unit of executable work that returns [CommandResult].
 abstract class Command<F, R> {
+  /// Creates a command contract.
+  const Command();
+
   /// Executes the command.
   Future<CommandResult<F, R>> call();
 }

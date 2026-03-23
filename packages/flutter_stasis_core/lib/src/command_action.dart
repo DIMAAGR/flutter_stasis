@@ -7,6 +7,9 @@ import 'command_result.dart';
 
 /// Encapsulates command execution flow for async stasis results.
 class CommandAction {
+  /// Creates a command action helper.
+  CommandAction();
+
   static final CommandExecutionScope _globalScope = CommandExecutionScope();
 
   static Future<CommandResult<F, R>> _run<F, R>({
