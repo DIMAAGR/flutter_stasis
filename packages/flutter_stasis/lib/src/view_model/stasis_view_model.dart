@@ -16,11 +16,14 @@ import 'stasis_notifier.dart';
 /// - command execution
 /// - one-shot UI events
 abstract class StasisViewModel<F, S, T extends StateObject<F, S, T>> {
-  StasisViewModel(T initialState)
-    : _stateNotifier = StasisNotifier<T>(initialState);
+  StasisViewModel(
+    T initialState, {
+    UiEventMode uiEventMode = UiEventMode.singleConsumer,
+  }) : _stateNotifier = StasisNotifier<T>(initialState),
+       _events = UiEventChannel(mode: uiEventMode);
 
   final StasisNotifier<T> _stateNotifier;
-  final UiEventChannel _events = UiEventChannel();
+  final UiEventChannel _events;
   final CommandExecutionScope _commandExecutionScope = CommandExecutionScope();
 
   bool _disposed = false;
@@ -33,6 +36,9 @@ abstract class StasisViewModel<F, S, T extends StateObject<F, S, T>> {
 
   /// One-shot UI event stream.
   Stream<UiEvent> get events => _events.stream;
+
+  /// Event channel for advanced bindings (owner dedupe, listener inspection).
+  UiEventChannel get eventChannel => _events;
 
   /// Whether this view model was disposed.
   bool get isDisposed => _disposed;

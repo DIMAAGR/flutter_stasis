@@ -521,6 +521,23 @@ class AudioVm extends StasisViewModel<AppFailure, AudioData, AudioState> {
 }
 ```
 
+### Prevent duplicated listeners with `ownerKey` + `eventChannel`
+
+```dart
+StasisEventListener(
+  channel: vm.eventChannel,
+  ownerKey: 'home_shell',
+  onEvent: (context, event) async {
+    switch (event) {
+      case ShowSnackBarEvent(:final message):
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(message)));
+    }
+  },
+  child: child,
+);
+```
+
 ### Explicit command keying for concurrency
 
 ```dart
