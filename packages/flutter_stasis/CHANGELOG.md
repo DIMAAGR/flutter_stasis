@@ -1,4 +1,4 @@
-## 0.2.0
+## 0.3.0
 
 - Pre-1.0 release line.
 - Added `StasisNotifier` and integrated it into `StasisViewModel`.

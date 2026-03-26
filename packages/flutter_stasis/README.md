@@ -14,7 +14,7 @@ Flutter layer of the Stasis ecosystem. Provides `StasisViewModel`, reactive widg
 
 ```yaml
 dependencies:
-  flutter_stasis: ^0.2.0
+  flutter_stasis: ^0.3.0
 ```
 
 ---
@@ -419,7 +419,7 @@ Future<void> load() => execute(
 );
 ```
 
-## 0.2.0 update
+## 0.3.0 update
 
 Based on community feedback, `flutter_stasis` now includes a dedicated runtime notifier:
 
