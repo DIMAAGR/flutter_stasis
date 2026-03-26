@@ -1,6 +1,17 @@
+/// Discriminant for [ViewModelState] runtime phase.
+enum InternalState { initial, loading, success, error }
+
 /// Canonical state lifecycle used by view models.
 sealed class ViewModelState<F, S> {
   const ViewModelState();
+
+  /// Explicit lifecycle discriminant for this state instance.
+  InternalState get actualState => switch (this) {
+    InitialState<F, S>() => InternalState.initial,
+    LoadingState<F, S>() => InternalState.loading,
+    SuccessState<F, S>() => InternalState.success,
+    ErrorState<F, S>() => InternalState.error,
+  };
 
   /// Exhaustive handling for all state variants.
   T when<T>({

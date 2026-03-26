@@ -29,12 +29,15 @@ abstract class StateObject<F, S, Self extends StateObject<F, S, Self>>
     _ => null,
   };
 
+  /// Explicit lifecycle discriminant from [state].
+  InternalState get actualState => state.actualState;
+
   /// Whether current state is loading.
-  bool get isLoading => state is LoadingState<F, S>;
+  bool get isLoading => actualState == InternalState.loading;
 
   /// Whether current state is success.
-  bool get isSuccess => state is SuccessState<F, S>;
+  bool get isSuccess => actualState == InternalState.success;
 
   /// Whether current state is error.
-  bool get isError => state is ErrorState<F, S>;
+  bool get isError => actualState == InternalState.error;
 }
