@@ -1,6 +1,6 @@
 name: flutter_stasis_core
 description: "Pure Dart core of the Stasis ecosystem. StateObject, ViewModelState, Command, CommandPolicy and CommandResult — no Flutter, no third-party dependencies."
-version: 0.3.0
+version: 0.3.1
 homepage: https://github.com/DIMAAGR/flutter_stasis
 repository: https://github.com/DIMAAGR/flutter_stasis
 
@@ -18,3 +18,4 @@ dependencies:
 
 dev_dependencies:
   lints: ^6.0.0
+  test: ^1.26.3

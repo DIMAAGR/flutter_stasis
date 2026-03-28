@@ -115,6 +115,9 @@ final command = TaskCommand<AppFailure, List<Project>>(
 );
 ```
 
+`Command.call()` must return `CommandSuccess`/`CommandFailure`.
+If it throws instead, Stasis rethrows a `CommandContractViolationError` (fail-fast).
+
 Map the success value without touching the ViewModel:
 
 ```dart
@@ -152,7 +155,8 @@ await CommandAction.execute(
   onLoading: ...,
   onError: ...,
   onSuccess: ...,
-  policy: CommandPolicy.restartable, // cancels previous on new call
+  policy: CommandPolicy.restartable,
+  policyKey: 'search',
 );
 ```
 
@@ -160,8 +164,13 @@ await CommandAction.execute(
 |---|---|
 | `parallel` *(default)* | Every call runs independently |
 | `droppable` | Ignores new calls while one is in-flight |
-| `restartable` | Keeps only the latest call's callbacks |
+| `restartable` | Keeps only the latest call's callbacks (does not cancel I/O) |
 | `sequential` | Queues calls, runs one at a time |
+
+Notes:
+
+- Use a stable `policyKey` for `droppable`, `sequential` and `restartable` (in debug, missing keys trigger an assert).
+- In `droppable`, a second call reuses the in-flight `Future`, so only the first call's callbacks run.
 
 ---
 
