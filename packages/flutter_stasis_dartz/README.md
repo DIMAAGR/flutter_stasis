@@ -13,8 +13,8 @@ If your use cases return `Future<Either<Failure, T>>`, this package bridges them
 
 ```yaml
 dependencies:
-  flutter_stasis: ^0.3.0
-  flutter_stasis_dartz: ^0.3.0
+  flutter_stasis: ^0.3.1
+  flutter_stasis_dartz: ^0.3.1
   dartz: ^0.10.1
 ```
 
@@ -73,8 +73,11 @@ Future<void> search(String query) => executeEither(
   onSuccess: setSuccess,
   onLoading: setLoading,
   policy: CommandPolicy.restartable,
+  policyKey: 'search',
 );
 ```
+
+Use stable `policyKey` values for `droppable`, `sequential`, and `restartable`.
 
 ---
 

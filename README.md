@@ -61,7 +61,7 @@ No try/catch. No manual flags. No state that can be `isLoading: true` and `data:
 
 ```yaml
 dependencies:
-  flutter_stasis: ^0.3.0
+  flutter_stasis: ^0.3.1
 ```
 
 **1. Define your state**
@@ -199,15 +199,22 @@ Future<void> submit() => execute(
   command: _submitUseCase,
   onSuccess: setSuccess,
   policy: CommandPolicy.droppable,
+  policyKey: 'submit',
 );
 
-// Cancel previous, run latest (live search)
+// Keep latest callbacks (live search). Previous requests still complete.
 Future<void> search(String q) => execute(
   command: TaskCommand(() => _searchUseCase(q)),
   onSuccess: setSuccess,
   policy: CommandPolicy.restartable,
+  policyKey: 'search',
 );
 ```
+
+Notes:
+
+- Use stable `policyKey` values with `droppable`, `sequential`, and `restartable`.
+- `restartable` keeps only the latest callbacks; it does not cancel in-flight I/O.
 
 ### Works with dartz — or without it
 

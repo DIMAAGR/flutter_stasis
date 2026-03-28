@@ -14,7 +14,7 @@ Flutter layer of the Stasis ecosystem. Provides `StasisViewModel`, reactive widg
 
 ```yaml
 dependencies:
-  flutter_stasis: ^0.3.0
+  flutter_stasis: ^0.3.1
 ```
 
 ---
@@ -101,8 +101,12 @@ Future<void> search(String query) => execute(
   onSuccess: setSuccess,
   onLoading: setLoading,
   policy: CommandPolicy.restartable,
+  policyKey: 'search',
 );
 ```
+
+Use a stable `policyKey` for `droppable`, `sequential`, and `restartable`.
+`restartable` suppresses stale callbacks but does not cancel underlying I/O.
 
 See [`flutter_stasis_core`](https://pub.dev/packages/flutter_stasis_core) for `Command`, `CommandPolicy` and result composition.
 
@@ -240,6 +244,7 @@ class CounterViewModel extends StasisViewModel<String, int, CounterState> {
     onSuccess: setSuccess,
     onLoading: setLoading,
     policy: CommandPolicy.droppable,
+    policyKey: 'counter_increment',
   );
 }
 
@@ -419,7 +424,7 @@ Future<void> load() => execute(
 );
 ```
 
-## 0.3.0 update
+## Runtime update
 
 Based on community feedback, `flutter_stasis` now includes a dedicated runtime notifier:
 

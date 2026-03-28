@@ -1,6 +1,6 @@
 name: flutter_stasis
 description: "State management for Flutter built around explicit lifecycle, standardised async execution, and ephemeral UI events."
-version: 0.3.0
+version: 0.3.1
 homepage: https://github.com/DIMAAGR/flutter_stasis
 repository: https://github.com/DIMAAGR/flutter_stasis
 
@@ -17,7 +17,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_stasis_core: ^0.3.0
+  flutter_stasis_core: ^0.3.1
 
 
 dev_dependencies:

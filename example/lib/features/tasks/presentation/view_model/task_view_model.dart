@@ -6,7 +6,8 @@ import '../../domain/use_cases/task_use_cases.dart';
 import '../events/task_events.dart';
 import 'task_state.dart';
 
-class TaskViewModel extends StasisViewModel<TaskFailure, List<Task>, TaskState> {
+class TaskViewModel
+    extends StasisViewModel<TaskFailure, List<Task>, TaskState> {
   TaskViewModel(
     this._getTasks,
     this._addTask,
@@ -27,40 +28,41 @@ class TaskViewModel extends StasisViewModel<TaskFailure, List<Task>, TaskState> 
 
   /// Loads all tasks. Uses droppable to prevent duplicate calls.
   Future<void> load() => execute(
-        command: _getTasks,
-        onSuccess: setSuccess,
-        onLoading: setLoading,
-        policy: CommandPolicy.droppable,
-      );
+    command: _getTasks,
+    onSuccess: setSuccess,
+    onLoading: setLoading,
+    policy: CommandPolicy.droppable,
+    policyKey: 'tasks_load',
+  );
 
-  /// Adds a new task. Uses droppable to prevent double-tap.
+  /// Adds a new task while exposing a local `isAdding` flag.
   Future<void> addTask(String title) => execute(
-        command: TaskCommand(() => _addTask(title)),
-        onSuccess: (task) {
-          final updated = [...state.allTasks, task];
-          setSuccess(updated, withUpdate: (s) => s.copyWith(isAdding: false));
-          emit(const ShowSnackBarEvent('Task added'));
-        },
-        onError: (f) {
-          setError(f, withUpdate: (s) => s.copyWith(isAdding: false));
-          emit(ShowSnackBarEvent(f.message));
-        },
-        onLoading: () => update((s) => s.copyWith(isAdding: true)),
-      );
+    command: TaskCommand(() => _addTask(title)),
+    onSuccess: (task) {
+      final updated = [...state.allTasks, task];
+      setSuccess(updated, withUpdate: (s) => s.copyWith(isAdding: false));
+      emit(const ShowSnackBarEvent('Task added'));
+    },
+    onError: (f) {
+      setError(f, withUpdate: (s) => s.copyWith(isAdding: false));
+      emit(ShowSnackBarEvent(f.message));
+    },
+    onLoading: () => update((s) => s.copyWith(isAdding: true)),
+  );
 
   /// Toggles done/undone. Uses restartable so rapid taps don't stack.
   Future<void> toggleTask(String id) => execute(
-        command: TaskCommand(() => _toggleTask(id)),
-        onSuccess: (updated) {
-          final tasks = state.allTasks
-              .map((t) => t.id == updated.id ? updated : t)
-              .toList();
-          setSuccess(tasks);
-        },
-        onError: (f) => emit(ShowSnackBarEvent(f.message)),
-        policy: CommandPolicy.restartable,
-        policyKey: 'toggle_$id',
-      );
+    command: TaskCommand(() => _toggleTask(id)),
+    onSuccess: (updated) {
+      final tasks = state.allTasks
+          .map((t) => t.id == updated.id ? updated : t)
+          .toList();
+      setSuccess(tasks);
+    },
+    onError: (f) => emit(ShowSnackBarEvent(f.message)),
+    policy: CommandPolicy.restartable,
+    policyKey: 'toggle_$id',
+  );
 
   /// Deletes a task optimistically — removes from UI immediately.
   Future<void> deleteTask(String id) {
@@ -80,14 +82,14 @@ class TaskViewModel extends StasisViewModel<TaskFailure, List<Task>, TaskState> 
 
   /// Clears all completed tasks.
   Future<void> clearCompleted() => execute(
-        command: TaskCommand(() => _clearCompleted()),
-        onSuccess: (_) {
-          final remaining = state.allTasks.where((t) => !t.isDone).toList();
-          setSuccess(remaining);
-          emit(const ShowSnackBarEvent('Completed tasks cleared'));
-        },
-        onError: (f) => emit(ShowSnackBarEvent(f.message)),
-      );
+    command: TaskCommand(() => _clearCompleted()),
+    onSuccess: (_) {
+      final remaining = state.allTasks.where((t) => !t.isDone).toList();
+      setSuccess(remaining);
+      emit(const ShowSnackBarEvent('Completed tasks cleared'));
+    },
+    onError: (f) => emit(ShowSnackBarEvent(f.message)),
+  );
 
   // ---------------------------------------------------------------------------
   // UI interactions

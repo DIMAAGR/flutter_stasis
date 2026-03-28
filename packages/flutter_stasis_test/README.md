@@ -11,7 +11,7 @@ Test helpers for [flutter_stasis](https://pub.dev/packages/flutter_stasis).
 
 ```yaml
 dev_dependencies:
-  flutter_stasis_test: ^0.3.0
+  flutter_stasis_test: ^0.3.1
   flutter_test:
     sdk: flutter
 ```
