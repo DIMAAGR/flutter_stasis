@@ -10,27 +10,29 @@ command:
 
 scripts:
   analyze:
-    run: melos exec -- dart analyze --fatal-infos
+    run: dart run melos exec --fail-fast -- dart analyze --fatal-infos
     description: Analyze all packages.
 
   format:
-    run: melos exec -- dart format . --set-exit-if-changed
+    run: dart run melos exec -- dart format . --set-exit-if-changed
     description: Check formatting across all packages.
 
+  test:dart:
+    run: dart run melos exec --fail-fast --no-flutter --dir-exists=test -- dart test
+    description: Run tests in pure Dart packages.
+
+  test:flutter:
+    run: dart run melos exec -c 1 --fail-fast --flutter --dir-exists=test -- flutter test
+    description: Run tests in Flutter packages.
+
   test:
-    run: melos exec --dir-exists=test -- flutter test
+    run: dart run melos run test:dart --no-select && dart run melos run test:flutter --no-select
     description: Run tests in all packages that have a test directory.
 
   publish:dry:
-    run: melos exec -- dart pub publish --dry-run
+    run: dart run melos exec -c 1 --fail-fast --order-dependents --no-private -- dart pub publish --dry-run
     description: Dry-run publish for all packages.
-    packageFilters:
-      ignore:
-        - flutter_stasis_example
 
   publish:all:
-    run: melos exec -- dart pub publish --force
+    run: dart run melos exec -c 1 --fail-fast --order-dependents --no-private -- dart pub publish --force
     description: Publish all packages to pub.dev.
-    packageFilters:
-      ignore:
-        - flutter_stasis_example

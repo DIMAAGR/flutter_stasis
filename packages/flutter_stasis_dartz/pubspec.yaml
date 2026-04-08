@@ -1,6 +1,6 @@
 name: flutter_stasis_dartz
 description: "dartz Either adapter for flutter_stasis. Bridges Future<Either<F, R>> use cases to StasisViewModel with zero boilerplate."
-version: 0.3.1
+version: 0.4.0
 homepage: https://github.com/DIMAAGR/flutter_stasis
 repository: https://github.com/DIMAAGR/flutter_stasis
 
@@ -17,8 +17,8 @@ dependencies:
   flutter:
     sdk: flutter
   dartz: ^0.10.1
-  flutter_stasis: ^0.3.1
-  flutter_stasis_core: ^0.3.1
+  flutter_stasis: ^0.4.0
+  flutter_stasis_core: ^0.4.0
   
 dev_dependencies:
   flutter_lints: ^6.0.0

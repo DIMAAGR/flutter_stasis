@@ -1,3 +1,10 @@
+## 0.4.0
+
+- Added `SafeData<T>` runtime integration to `StasisViewModel`.
+- Added `manageSafeData(...)` to bridge managed field updates through `invalidate()`.
+- Added explicit `commandKey` support in `execute(...)` for keyed cleanup after success or error.
+- Added runtime cleanup of managed safe fields during `dispose()`.
+
 ## 0.3.1
 
 - Updated command docs and examples to include stable `policyKey` usage.

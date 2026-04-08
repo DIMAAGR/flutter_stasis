@@ -1,4 +1,6 @@
-# melos_managed_dependency_overrides: flutter_stasis_core
+# melos_managed_dependency_overrides: flutter_stasis_core,flutter_stasis_test
 dependency_overrides:
   flutter_stasis_core:
     path: ../flutter_stasis_core
+  flutter_stasis_test:
+    path: ../flutter_stasis_test

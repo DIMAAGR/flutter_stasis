@@ -1,6 +1,6 @@
 name: flutter_stasis_test
 description: "Test helpers for flutter_stasis. captureStates, captureEvents, assertStateSequence and assertEventSequence."
-version: 0.3.1
+version: 0.4.0
 homepage: https://github.com/DIMAAGR/flutter_stasis
 repository: https://github.com/DIMAAGR/flutter_stasis
 
@@ -16,7 +16,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_stasis: ^0.3.1
+  flutter_stasis: ^0.4.0
 
 dev_dependencies:
   flutter_lints: ^6.0.0

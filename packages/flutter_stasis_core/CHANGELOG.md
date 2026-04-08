@@ -1,3 +1,10 @@
+## 0.4.0
+
+- Added `SafeData<T>` for runtime-managed sensitive and short-lived values.
+- Added `SafeDataPolicy` and related enums for expiration, cleanup, persistence, and logging strategies.
+- Added `SafeData.memoryOnly(...)` convenience constructor.
+- Added keyed command cleanup handling and runtime change callbacks for `SafeData`.
+
 ## 0.3.1
 
 - Added debug assertions requiring `policyKey` for `droppable`, `sequential`, and `restartable`.

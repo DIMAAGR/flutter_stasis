@@ -1,3 +1,7 @@
+## 0.4.0
+
+- Aligned dependency constraints with the `flutter_stasis` `0.4.0` runtime release.
+
 ## 0.3.1
 
 - Aligned package release line with core command hardening update.
