@@ -173,6 +173,8 @@ abstract class StasisViewModel<F, S, T extends StateObject<F, S, T>> {
   /// Releases state and event resources.
   @mustCallSuper
   Future<void> dispose() async {
+    if (_disposed) return;
+
     _disposed = true;
     _commandExecutionScope.clear();
     for (final field in _managedSafeData) {

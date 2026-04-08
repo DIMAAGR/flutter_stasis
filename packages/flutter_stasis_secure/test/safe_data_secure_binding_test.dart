@@ -103,6 +103,36 @@ void main() {
       expect(field.status, SafeDataStatus.available);
     });
 
+    test('restore notifies an attached runtime callback', () async {
+      final notifications = <String>[];
+      final field = SafeData<String>(
+        policy: const SafeDataPolicy(
+          persistence: SafeDataPersistence.secureStorage,
+        ),
+      );
+      field.attachRuntime(onChanged: () => notifications.add('changed'));
+
+      final adapter = FakeSafeDataSecureAdapter();
+      await adapter.write(
+        const SafeDataSecureRecord(
+          key: 'refresh_token',
+          encodedValue: 'enc:restored-token',
+        ),
+      );
+      final binding = SafeDataSecureBinding<String>(
+        field: field,
+        adapter: adapter,
+        key: 'refresh_token',
+        encode: (value) => 'enc:$value',
+        decode: (value) => value.replaceFirst('enc:', ''),
+      );
+
+      final restored = await binding.restore();
+
+      expect(restored, isTrue);
+      expect(notifications, ['changed']);
+    });
+
     test(
       'restore recomputes expiration from the current restore time',
       () async {
@@ -183,6 +213,38 @@ void main() {
         expect(adapter.readCalls, 0);
       },
     );
+
+    test('restore failures leave the current field value untouched', () async {
+      final field = SafeData<String>(
+        initialValue: 'existing-token',
+        policy: const SafeDataPolicy(
+          persistence: SafeDataPersistence.secureStorage,
+        ),
+      );
+      final notifications = <String>[];
+      field.attachRuntime(onChanged: () => notifications.add('changed'));
+
+      final adapter = FakeSafeDataSecureAdapter();
+      await adapter.write(
+        const SafeDataSecureRecord(
+          key: 'refresh_token',
+          encodedValue: 'enc:corrupted-token',
+        ),
+      );
+      final binding = SafeDataSecureBinding<String>(
+        field: field,
+        adapter: adapter,
+        key: 'refresh_token',
+        encode: (value) => 'enc:$value',
+        decode: (_) => throw const FormatException('corrupted payload'),
+      );
+
+      await expectLater(binding.restore(), throwsA(isA<FormatException>()));
+
+      expect(field.requireValid(), 'existing-token');
+      expect(field.status, SafeDataStatus.available);
+      expect(notifications, isEmpty);
+    });
 
     test('deletePersisted removes the stored value', () async {
       final field = SafeData<String>(

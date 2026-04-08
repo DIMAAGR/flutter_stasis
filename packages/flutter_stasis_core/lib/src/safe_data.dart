@@ -9,6 +9,8 @@ class SafeData<T> {
   /// Creates a managed field with an optional [initialValue].
   SafeData({T? initialValue, required this.policy, SafeDataNow? now})
     : _now = now ?? DateTime.now {
+    _validatePolicy(policy);
+
     if (initialValue == null) {
       _status = SafeDataStatus.empty;
       return;
@@ -98,6 +100,10 @@ class SafeData<T> {
   }
 
   /// Replaces the current value and resets the expiration window.
+  ///
+  /// Passing `null` to a nullable `SafeData<T?>` returns the field to the
+  /// `empty` state. Use [clear] when the distinction between `empty` and
+  /// explicitly `cleared` matters.
   void set(T value) {
     if (value == null) {
       final changed =
@@ -136,6 +142,12 @@ class SafeData<T> {
 
   /// Registers a callback for runtime-visible internal changes.
   void attachRuntime({required void Function() onChanged}) {
+    if (_onChanged != null) {
+      throw StateError(
+        'SafeData already has an attached runtime. Detach it before attaching '
+        'another runtime callback.',
+      );
+    }
     _onChanged = onChanged;
   }
 
@@ -161,6 +173,17 @@ class SafeData<T> {
           : SafeDataClearReason.commandError,
     );
     return true;
+  }
+
+  static void _validatePolicy(SafeDataPolicy policy) {
+    final expiresAfter = policy.expiresAfter;
+    if (expiresAfter != null && expiresAfter.isNegative) {
+      throw ArgumentError.value(
+        expiresAfter,
+        'policy.expiresAfter',
+        'SafeData expiration must be zero or positive.',
+      );
+    }
   }
 
   DateTime? _computeExpiresAt() {

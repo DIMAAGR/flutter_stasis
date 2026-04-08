@@ -95,6 +95,22 @@ void main() {
       expect(data.requireValid(), 'new-token');
     });
 
+    test('set(null) on a nullable field resets the field back to empty', () {
+      final data = SafeData<String?>(
+        initialValue: 'temporary-secret',
+        policy: const SafeDataPolicy(),
+      );
+
+      data.set(null);
+
+      expect(data.hasValue, isFalse);
+      expect(data.isCleared, isFalse);
+      expect(data.isExpired, isFalse);
+      expect(data.status, SafeDataStatus.empty);
+      expect(data.readOrNull(), isNull);
+      expect(() => data.requireValid(), throwsA(isA<StateError>()));
+    });
+
     test('redacts the raw value in string output by default', () {
       final data = SafeData<String>(
         initialValue: 'super-secret-password',
@@ -130,6 +146,34 @@ void main() {
       expect(data.status, SafeDataStatus.expired);
       expect(data.readOrNull(), isNull);
       expect(() => data.requireValid(), throwsA(isA<StateError>()));
+    });
+
+    test('expires immediately when configured with Duration.zero', () {
+      final currentTime = DateTime.utc(2026, 4, 8, 12, 0, 0);
+
+      final data = SafeData<String>(
+        initialValue: 'otp-code',
+        policy: const SafeDataPolicy(expiresAfter: Duration.zero),
+        now: () => currentTime,
+      );
+
+      expect(data.expiresAt, currentTime);
+      expect(data.status, SafeDataStatus.expired);
+      expect(data.hasValue, isFalse);
+      expect(data.readOrNull(), isNull);
+      expect(() => data.requireValid(), throwsA(isA<StateError>()));
+    });
+
+    test('rejects negative expiration durations', () {
+      expect(
+        () => SafeData<String>(
+          initialValue: 'otp-code',
+          policy: const SafeDataPolicy(
+            expiresAfter: Duration(microseconds: -1),
+          ),
+        ),
+        throwsArgumentError,
+      );
     });
 
     test('set resets the expiration window from the new write time', () {
@@ -242,5 +286,37 @@ void main() {
         expect(data.readOrNull(), 'third');
       },
     );
+
+    test('rejects attaching a second runtime without detaching first', () {
+      final data = SafeData<String>(
+        initialValue: 'first',
+        policy: const SafeDataPolicy(),
+      );
+
+      data.attachRuntime(onChanged: () {});
+
+      expect(
+        () => data.attachRuntime(onChanged: () {}),
+        throwsA(isA<StateError>()),
+      );
+    });
+
+    test('supports attach-detach-attach cycles', () {
+      final notifications = <String>[];
+      final data = SafeData<String>(
+        initialValue: 'first',
+        policy: const SafeDataPolicy(),
+      );
+
+      data.attachRuntime(onChanged: () => notifications.add('first-runtime'));
+      data.set('second');
+
+      data.detachRuntime();
+      data.attachRuntime(onChanged: () => notifications.add('second-runtime'));
+      data.clear();
+
+      expect(notifications, ['first-runtime', 'second-runtime']);
+      expect(data.status, SafeDataStatus.cleared);
+    });
   });
 }

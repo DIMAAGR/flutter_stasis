@@ -123,6 +123,34 @@ void main() {
 
       await vm.dispose();
     });
+
+    test('duplicate safe-data registration is ignored', () async {
+      final vm = _TestViewModel();
+
+      vm.registerPasswordAgain();
+
+      final states = await captureStates<_TestState>(
+        listenable: vm.stateListenable,
+        act: () async {
+          vm.setPassword('updated-password');
+        },
+      );
+
+      expect(states, hasLength(2));
+      expect(vm.state.password.requireValid(), 'updated-password');
+
+      await vm.dispose();
+    });
+
+    test('dispose remains safe when called twice', () async {
+      final vm = _TestViewModel();
+
+      await vm.dispose();
+      await vm.dispose();
+
+      expect(vm.state.password.status, SafeDataStatus.cleared);
+      expect(vm.state.otpCode.status, SafeDataStatus.cleared);
+    });
   });
 }
 
@@ -152,6 +180,8 @@ final class _TestViewModel extends StasisViewModel<String, String, _TestState> {
   }
 
   void setPassword(String value) => state.password.set(value);
+
+  void registerPasswordAgain() => manageSafeData(state.password);
 
   Future<void> loginSuccess() => execute<String>(
     command: TaskCommand(() async => const CommandSuccess('ok')),
