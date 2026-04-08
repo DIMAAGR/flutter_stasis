@@ -14,6 +14,7 @@ One ViewModel. One StateObject. No boilerplate.
 |---|---|---|
 | [`flutter_stasis_core`](packages/flutter_stasis_core) | [![pub](https://img.shields.io/pub/v/flutter_stasis_core.svg)](https://pub.dev/packages/flutter_stasis_core) | Pure Dart core — `StateObject`, `ViewModelState`, `Command`, `CommandPolicy` |
 | [`flutter_stasis`](packages/flutter_stasis) | [![pub](https://img.shields.io/pub/v/flutter_stasis.svg)](https://pub.dev/packages/flutter_stasis) | Flutter layer — `StasisViewModel`, `StasisBuilder`, `StasisSelector`, `StasisEventListener` |
+| [`flutter_stasis_secure`](packages/flutter_stasis_secure) | [![pub](https://img.shields.io/pub/v/flutter_stasis_secure.svg)](https://pub.dev/packages/flutter_stasis_secure) | Optional secure persistence helpers for `SafeData` |
 | [`flutter_stasis_dartz`](packages/flutter_stasis_dartz) | [![pub](https://img.shields.io/pub/v/flutter_stasis_dartz.svg)](https://pub.dev/packages/flutter_stasis_dartz) | Optional dartz `Either` adapter |
 | [`flutter_stasis_test`](packages/flutter_stasis_test) | [![pub](https://img.shields.io/pub/v/flutter_stasis_test.svg)](https://pub.dev/packages/flutter_stasis_test) | Test helpers |
 
@@ -61,7 +62,7 @@ No try/catch. No manual flags. No state that can be `isLoading: true` and `data:
 
 ```yaml
 dependencies:
-  flutter_stasis: ^0.3.1
+  flutter_stasis: ^0.4.0
 ```
 
 **1. Define your state**
@@ -216,6 +217,69 @@ Notes:
 - Use stable `policyKey` values with `droppable`, `sequential`, and `restartable`.
 - `restartable` keeps only the latest callbacks; it does not cancel in-flight I/O.
 
+### Runtime-safe data with SafeData
+
+Stasis `0.4.0` adds `SafeData<T>` for sensitive or short-lived values that
+should not stay in memory longer than needed.
+
+```dart
+class LoginState extends StateObject<AuthFailure, Session, LoginState> {
+  const LoginState({
+    required super.state,
+    required this.password,
+    required this.otpCode,
+  });
+
+  final SafeData<String> password;
+  final SafeData<String> otpCode;
+
+  @override
+  LoginState withState(ViewModelState<AuthFailure, Session> state) =>
+      LoginState(
+        state: state,
+        password: password,
+        otpCode: otpCode,
+      );
+
+  @override
+  List<Object?> get props => [state];
+}
+
+class LoginViewModel extends StasisViewModel<AuthFailure, Session, LoginState> {
+  LoginViewModel()
+      : super(
+          LoginState(
+            state: const InitialState(),
+            password: SafeData.memoryOnly(
+              initialValue: '',
+              clearOnCommandSuccess: {'login'},
+            ),
+            otpCode: SafeData.memoryOnly(
+              expiresAfter: const Duration(seconds: 30),
+              clearOnCommandSuccess: {'verify-otp'},
+            ),
+          ),
+        ) {
+    manageSafeData(state.password);
+    manageSafeData(state.otpCode);
+  }
+
+  Future<void> login() => execute(
+    command: _loginCommand,
+    onSuccess: setSuccess,
+    onLoading: setLoading,
+    commandKey: 'login',
+  );
+}
+```
+
+`SafeData` is a managed runtime handle, not a plain immutable field. Keep it
+out of `Equatable.props`, register it with `manageSafeData(...)`, and use
+explicit `commandKey` values when cleanup should happen after success or error.
+
+If you want explicit secure persistence, use
+[`flutter_stasis_secure`](packages/flutter_stasis_secure).
+
 ### Works with dartz — or without it
 
 ```dart
@@ -251,6 +315,8 @@ A fully working task manager app is in [`example/`](example). It demonstrates:
 - `StasisEventListener` for snackbars and dialogs
 - `UiEvent` typed events
 - Optimistic updates with rollback
+- `SafeData<T>` for password, OTP, access token, and refresh token handling
+- Explicit persistence and restore with `flutter_stasis_secure`
 - Unit tests with `flutter_stasis_test`
 
 ```bash

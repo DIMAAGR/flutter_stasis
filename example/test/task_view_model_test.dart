@@ -42,9 +42,7 @@ void main() {
       await assertEventSequence(
         stream: vm.events,
         act: () => vm.addTask('Buy groceries'),
-        expected: [
-          (e) => e is ShowSnackBarEvent,
-        ],
+        expected: [(e) => e is ShowSnackBarEvent],
       );
 
       expect(vm.state.allTasks, hasLength(1));
@@ -86,8 +84,7 @@ void main() {
         act: () => vm.addTask('   '),
         expected: [
           (e) =>
-              e is ShowSnackBarEvent &&
-              e.message == 'Title cannot be empty.',
+              e is ShowSnackBarEvent && e.message == 'Title cannot be empty.',
         ],
       );
 

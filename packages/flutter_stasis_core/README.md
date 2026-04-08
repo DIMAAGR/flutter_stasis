@@ -19,6 +19,8 @@ No Flutter dependency. No third-party result type. Just the contracts that power
 | `CommandResult<F, R>` | Sealed result — `CommandSuccess`, `CommandFailure` |
 | `CommandPolicy` | Concurrency strategy — `parallel`, `droppable`, `restartable`, `sequential` |
 | `CommandAction` | Executor that wires command + policy + callbacks |
+| `SafeData<T>` | Runtime-managed sensitive data with expiration and cleanup rules |
+| `SafeDataPolicy` | Retention, cleanup, persistence and logging rules for `SafeData` |
 | `StateFailure` | Optional base class for typed failures |
 
 ---
@@ -171,6 +173,57 @@ Notes:
 
 - Use a stable `policyKey` for `droppable`, `sequential` and `restartable` (in debug, missing keys trigger an assert).
 - In `droppable`, a second call reuses the in-flight `Future`, so only the first call's callbacks run.
+
+---
+
+## SafeData
+
+`SafeData<T>` is the first runtime-managed data primitive in Stasis. It is
+designed for values such as passwords, OTP codes, access tokens, refresh
+tokens, and other short-lived sensitive fields.
+
+```dart
+final password = SafeData.memoryOnly(
+  initialValue: '',
+  clearOnCommandSuccess: {'login'},
+);
+
+final otpCode = SafeData<String>(
+  policy: const SafeDataPolicy(
+    expiresAfter: Duration(seconds: 30),
+    clearOnCommandSuccess: {'verify-otp'},
+    persistence: SafeDataPersistence.memoryOnly,
+  ),
+);
+```
+
+Core capabilities:
+
+- explicit `clear()`
+- expiration via `expiresAfter`
+- cleanup rules linked to command keys
+- redacted or masked string output
+- runtime change callbacks for outer integrations
+
+Key APIs:
+
+```dart
+password.readOrNull();
+password.requireValid();
+password.set('123456');
+password.clear();
+password.handleCommandCompletion(
+  commandKey: 'login',
+  succeeded: true,
+);
+```
+
+Important:
+
+- `SafeData` is safe handling, not absolute security.
+- It reduces accidental exposure and over-retention.
+- It cannot guarantee protection against memory dumps, debuggers, or internal
+  copies of immutable Dart strings.
 
 ---
 

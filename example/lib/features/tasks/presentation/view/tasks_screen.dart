@@ -83,21 +83,24 @@ class _TasksScreenState extends State<TasksScreen> {
             // Filter bar — rebuilds only when filter or counts change
             Container(
               color: Colors.white,
-              child: StasisSelector<TaskState,
-                  ({TaskFilter filter, int active, int completed})>(
-                listenable: vm.stateListenable,
-                selector: (s) => (
-                  filter: s.filter,
-                  active: s.activeCount,
-                  completed: s.completedCount,
-                ),
-                builder: (context, data, _) => TaskFilterBar(
-                  current: data.filter,
-                  onChanged: vm.setFilter,
-                  activeCount: data.active,
-                  completedCount: data.completed,
-                ),
-              ),
+              child:
+                  StasisSelector<
+                    TaskState,
+                    ({TaskFilter filter, int active, int completed})
+                  >(
+                    listenable: vm.stateListenable,
+                    selector: (s) => (
+                      filter: s.filter,
+                      active: s.activeCount,
+                      completed: s.completedCount,
+                    ),
+                    builder: (context, data, _) => TaskFilterBar(
+                      current: data.filter,
+                      onChanged: vm.setFilter,
+                      activeCount: data.active,
+                      completedCount: data.completed,
+                    ),
+                  ),
             ),
 
             // Task list — full rebuild when list changes
@@ -114,8 +117,11 @@ class _TasksScreenState extends State<TasksScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.error_outline,
-                              size: 48, color: Colors.red),
+                          const Icon(
+                            Icons.error_outline,
+                            size: 48,
+                            color: Colors.red,
+                          ),
                           const SizedBox(height: 12),
                           Text(state.errorMessage ?? 'Error'),
                           const SizedBox(height: 16),

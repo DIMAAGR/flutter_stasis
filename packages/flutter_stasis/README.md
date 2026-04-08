@@ -14,7 +14,7 @@ Flutter layer of the Stasis ecosystem. Provides `StasisViewModel`, reactive widg
 
 ```yaml
 dependencies:
-  flutter_stasis: ^0.3.1
+  flutter_stasis: ^0.4.0
 ```
 
 ---
@@ -108,6 +108,18 @@ Future<void> search(String query) => execute(
 Use a stable `policyKey` for `droppable`, `sequential`, and `restartable`.
 `restartable` suppresses stale callbacks but does not cancel underlying I/O.
 
+`commandKey` is separate from `policyKey`. Use it when managed runtime fields
+such as `SafeData` should react to a specific command completion:
+
+```dart
+Future<void> login() => execute(
+  command: _loginUseCase,
+  onSuccess: setSuccess,
+  onLoading: setLoading,
+  commandKey: 'login',
+);
+```
+
 See [`flutter_stasis_core`](https://pub.dev/packages/flutter_stasis_core) for `Command`, `CommandPolicy` and result composition.
 
 ### Lifecycle
@@ -123,6 +135,71 @@ class _ScreenState extends State<MyScreen> {
   }
 }
 ```
+
+### Runtime-safe data
+
+`SafeData<T>` lets a ViewModel manage short-lived or sensitive values with
+explicit cleanup rules.
+
+```dart
+class LoginState extends StateObject<AuthFailure, Session, LoginState> {
+  const LoginState({
+    required super.state,
+    required this.password,
+    required this.otpCode,
+  });
+
+  final SafeData<String> password;
+  final SafeData<String> otpCode;
+
+  @override
+  LoginState withState(ViewModelState<AuthFailure, Session> state) =>
+      LoginState(
+        state: state,
+        password: password,
+        otpCode: otpCode,
+      );
+
+  @override
+  List<Object?> get props => [state];
+}
+
+class LoginViewModel extends StasisViewModel<AuthFailure, Session, LoginState> {
+  LoginViewModel()
+      : super(
+          LoginState(
+            state: const InitialState(),
+            password: SafeData.memoryOnly(
+              initialValue: '',
+              clearOnCommandSuccess: {'login'},
+            ),
+            otpCode: SafeData.memoryOnly(
+              expiresAfter: const Duration(seconds: 30),
+              clearOnCommandSuccess: {'verify-otp'},
+            ),
+          ),
+        ) {
+    manageSafeData(state.password);
+    manageSafeData(state.otpCode);
+  }
+
+  void updatePassword(String value) => state.password.set(value);
+
+  Future<void> login() => execute(
+    command: _loginUseCase,
+    onSuccess: setSuccess,
+    onLoading: setLoading,
+    commandKey: 'login',
+  );
+}
+```
+
+Rules of thumb:
+
+- Register each `SafeData` with `manageSafeData(...)`.
+- Keep `SafeData` out of `Equatable.props`.
+- Use `commandKey` when cleanup should happen after success or error.
+- Treat this as safe handling, not absolute memory security.
 
 ---
 

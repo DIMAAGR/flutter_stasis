@@ -24,10 +24,10 @@ class TaskState extends StateObject<TaskFailure, List<Task>, TaskState> {
   List<Task> get allTasks => dataOrNull ?? [];
 
   List<Task> get visibleTasks => switch (filter) {
-        TaskFilter.all => allTasks,
-        TaskFilter.active => allTasks.where((t) => !t.isDone).toList(),
-        TaskFilter.completed => allTasks.where((t) => t.isDone).toList(),
-      };
+    TaskFilter.all => allTasks,
+    TaskFilter.active => allTasks.where((t) => !t.isDone).toList(),
+    TaskFilter.completed => allTasks.where((t) => t.isDone).toList(),
+  };
 
   int get completedCount => allTasks.where((t) => t.isDone).length;
   int get activeCount => allTasks.where((t) => !t.isDone).length;

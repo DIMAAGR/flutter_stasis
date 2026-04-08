@@ -45,8 +45,7 @@ class TaskFilterBar extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight:
-                      selected ? FontWeight.w600 : FontWeight.normal,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
                   color: selected ? Colors.deepPurple : Colors.grey,
                 ),
               ),

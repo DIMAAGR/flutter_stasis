@@ -5,5 +5,6 @@ class TaskFailure extends StateFailure {
 
   const TaskFailure.notFound() : super('Task not found.');
   const TaskFailure.emptyTitle() : super('Title cannot be empty.');
-  const TaskFailure.unknown() : super('Something went wrong. Please try again.');
+  const TaskFailure.unknown()
+    : super('Something went wrong. Please try again.');
 }

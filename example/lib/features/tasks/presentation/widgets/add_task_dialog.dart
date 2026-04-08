@@ -11,9 +11,7 @@ Future<String?> showAddTaskDialog(BuildContext context) {
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'What needs to be done?',
-          ),
+          decoration: const InputDecoration(hintText: 'What needs to be done?'),
           onSubmitted: (value) => Navigator.of(context).pop(value),
         ),
         actions: [

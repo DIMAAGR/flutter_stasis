@@ -13,10 +13,7 @@ class Task extends Equatable {
   final bool isDone;
   final DateTime createdAt;
 
-  Task copyWith({
-    String? title,
-    bool? isDone,
-  }) {
+  Task copyWith({String? title, bool? isDone}) {
     return Task(
       id: id,
       title: title ?? this.title,

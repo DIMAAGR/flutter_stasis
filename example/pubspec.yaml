@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   flutter_stasis:
     path: ../packages/flutter_stasis
+  flutter_stasis_secure:
+    path: ../packages/flutter_stasis_secure
   equatable: ^2.0.5
   uuid: ^4.3.3
 
