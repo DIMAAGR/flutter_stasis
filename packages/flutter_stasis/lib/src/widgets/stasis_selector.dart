@@ -60,9 +60,7 @@ class _StasisSelectorState<TState, TSelected>
   }
 
   @override
-  void didUpdateWidget(
-    covariant StasisSelector<TState, TSelected> oldWidget,
-  ) {
+  void didUpdateWidget(covariant StasisSelector<TState, TSelected> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.listenable != widget.listenable) {
@@ -72,7 +70,8 @@ class _StasisSelectorState<TState, TSelected>
       return;
     }
 
-    if (oldWidget.selector != widget.selector || oldWidget.equals != widget.equals) {
+    if (oldWidget.selector != widget.selector ||
+        oldWidget.equals != widget.equals) {
       final next = widget.selector(widget.listenable.value);
       if (_didSelectionChange(_selected, next)) {
         _selected = next;

@@ -15,4 +15,3 @@ enum CommandPolicy {
   /// callbacks are suppressed if a newer one started.
   restartable,
 }
-

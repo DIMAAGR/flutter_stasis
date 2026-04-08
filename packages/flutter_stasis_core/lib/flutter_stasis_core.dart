@@ -6,3 +6,6 @@ export 'src/command.dart';
 export 'src/command_policy.dart';
 export 'src/command_execution_scope.dart';
 export 'src/command_action.dart';
+export 'src/safe_data_enums.dart';
+export 'src/safe_data_policy.dart';
+export 'src/safe_data.dart';

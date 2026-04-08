@@ -25,6 +25,7 @@ abstract class StasisViewModel<F, S, T extends StateObject<F, S, T>> {
   final StasisNotifier<T> _stateNotifier;
   final UiEventChannel _events;
   final CommandExecutionScope _commandExecutionScope = CommandExecutionScope();
+  final Set<SafeData<dynamic>> _managedSafeData = <SafeData<dynamic>>{};
 
   bool _disposed = false;
 
@@ -113,6 +114,17 @@ abstract class StasisViewModel<F, S, T extends StateObject<F, S, T>> {
     _events.emit(event);
   }
 
+  /// Registers a managed safe field owned by this view model.
+  ///
+  /// Managed fields can notify listeners through [invalidate], react to keyed
+  /// command cleanup, and participate in disposal cleanup.
+  @protected
+  void manageSafeData(SafeData<dynamic> field) {
+    if (_managedSafeData.add(field)) {
+      field.attachRuntime(onChanged: invalidate);
+    }
+  }
+
   /// Executes a command and delegates side effects through callbacks.
   ///
   /// Public by design to allow adapter packages (for example dartz/fpdart)
@@ -124,14 +136,19 @@ abstract class StasisViewModel<F, S, T extends StateObject<F, S, T>> {
     FutureOr<void> Function()? onLoading,
     CommandPolicy policy = CommandPolicy.parallel,
     Object? policyKey,
+    Object? commandKey,
   }) {
     return CommandAction.execute<F, R>(
       command: command,
       onError: (failure) async {
         setError(failure);
         if (onError != null) await onError(failure);
+        _applyManagedCommandCleanup(commandKey: commandKey, succeeded: false);
       },
-      onSuccess: onSuccess,
+      onSuccess: (result) async {
+        await onSuccess(result);
+        _applyManagedCommandCleanup(commandKey: commandKey, succeeded: true);
+      },
       onLoading: onLoading,
       policy: policy,
       policyKey: policyKey,
@@ -139,11 +156,32 @@ abstract class StasisViewModel<F, S, T extends StateObject<F, S, T>> {
     );
   }
 
+  void _applyManagedCommandCleanup({
+    required Object? commandKey,
+    required bool succeeded,
+  }) {
+    if (commandKey == null) return;
+
+    for (final field in _managedSafeData) {
+      field.handleCommandCompletion(
+        commandKey: commandKey,
+        succeeded: succeeded,
+      );
+    }
+  }
+
   /// Releases state and event resources.
   @mustCallSuper
   Future<void> dispose() async {
     _disposed = true;
     _commandExecutionScope.clear();
+    for (final field in _managedSafeData) {
+      if (field.policy.clearOnDispose) {
+        field.clear(reason: SafeDataClearReason.dispose);
+      }
+      field.detachRuntime();
+    }
+    _managedSafeData.clear();
     _stateNotifier.dispose();
     await _events.dispose();
   }

@@ -1,0 +1,25 @@
+name: flutter_stasis_secure
+description: "Optional secure persistence primitives for flutter_stasis SafeData."
+version: 0.1.0
+homepage: https://github.com/DIMAAGR/flutter_stasis
+repository: https://github.com/DIMAAGR/flutter_stasis
+
+topics:
+  - state-management
+  - flutter
+  - security
+  - storage
+
+environment:
+  sdk: ^3.10.0
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_stasis_core: ^0.4.0
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
